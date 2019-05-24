@@ -1,0 +1,5 @@
+2019-03-12 08:41:13,253 - ERROR: 2019-03-12 08:41:13.251000-filename:KML_tester_base.py-method:_init_io-[line:823]- msg:IO init fail:readDI data error Z- [status:False]
+2019-03-12 08:41:23,460 - ERROR: 2019-03-12 08:41:23.461000-filename:KML_tester_base.py-method:_loadcell-[line:857]- msg:loadcell init fail: moon port connect fail- [status:False]
+2019-03-12 08:41:25,483 - ERROR: 2019-03-12 08:41:25.483000-filename:KML_tester_base.py-method:_haptics_probe-[line:888]- msg:Acc init fail- [status:False]
+2019-03-12 08:41:25,486 - ERROR: 2019-03-12 08:41:25.485000-filename:KML_tester_base.py-method:_mcu-[line:912]- msg:mcu fail- [status:False]
+2019-03-12 08:41:25,624 - ERROR: 2019-03-12 08:41:25.623000-filename:KML_tester_base.py-method:_moon_motor-[line:942]- msg:moon init fail- [status:False]

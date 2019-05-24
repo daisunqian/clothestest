@@ -1,0 +1,1 @@
+python IQCtest.py ./IPQCconfig.ini ./IPQClimit.ini

@@ -1,0 +1,1 @@
+C:\Python27\python.exe  C:\Users\hely\he\Pyprojects\Jacquard_SRC\JacquardPro\Garment_demo.py

@@ -1,0 +1,4 @@
+2019-03-13 21:38:27,539 - ERROR: 2019-03-13 21:38:27.539000-filename:KML_tester_base.py-method:_loadcell-[line:883]- msg:loadcell init fail: moon port connect fail- [status:False]
+2019-03-13 21:38:27,690 - INFO: 2019-03-13 21:38:27.690000-filename:KML_tester_base.py-method:_haptics_probe-[line:914]- msg:Acc init OK- [status:True]
+2019-03-13 21:38:27,691 - ERROR: 2019-03-13 21:38:27.691000-filename:KML_tester_base.py-method:_mcu-[line:938]- msg:mcu fail- [status:False]
+2019-03-13 21:38:27,693 - ERROR: 2019-03-13 21:38:27.693000-filename:KML_tester_base.py-method:_moon_motor-[line:968]- msg:moon init fail- [status:False]

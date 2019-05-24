@@ -1,0 +1,24 @@
+Command: Info
+Mfg firmware version: 4.2
+Mfg build date: Mar  1 2019 08:49:28 
+Factory config:
+  Manufacturing ID: 2129FXKBL00002
+  Google ID: 1-12-2129FXKBL00002-302P
+  Gear ID: 
+  Vendor ID: 0
+  Product ID: 0
+  Hardware revision: 12
+HFCLK Frequency: 48000kHz
+Cap-sense config:
+  VREF: 2021
+  CSD tuning mode: 1
+  Scan Resolution: Prox=15, Linear Slider=13
+  Sense Clock Frequency (divider): Prox=32, Linear Slider=8
+  Modulation Clock Frequency (divider): 1
+  Noise Threshold: Prox=130, Linear Slider=57
+  Modulation IDAC Values: Prox=13, Linear Slider=18
+  Compensation IDAC Values:
+  Prox L0  L1  L2  L3  L4  L5  L6  L7  L8  L9  L10 L11
+  12,  1,  2,  3,  4,  4,  4,  6,  7, 14,  9, 16, 14
+
+> 

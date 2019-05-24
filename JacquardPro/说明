@@ -1,0 +1,84 @@
+
+配置文件节点 [Application] 说明
+test_type测试机种类型，有如下几种:
+KML_Cuff_tester       衣服半成品测试
+KML_Garment_tester    衣服成品测试
+
+KS_tester             KS背包测试
+KMY_Strap_tester      KY背包半成品测试
+KMY_Backpack_tester   KY背包成品测试
+
+
+
+Windows的标准色(256色模式)
+RGB( 0, 0, 0) 黑色
+RGB( 0, 0, 255) 蓝色
+RGB( 0, 255, 0) 绿色
+RGB( 0, 255, 255) 青色
+RGB( 255, 0, 0) 红色
+RGB( 255, 0, 255) 品红色
+RGB( 255, 255, 0) 黄色
+RGB( 255, 255, 255) 白色
+RGB( 0, 0, 128) 暗蓝色
+RGB( 0, 128, 0) 暗绿色
+RGB( 0, 128, 128) 暗青色
+RGB( 128, 0, 0) 暗红色
+RGB( 128, 0, 128) 暗紫色
+RGB( 128, 128, 0) 橄榄色
+RGB( 128, 128, 128) 暗灰色
+RGB( 192, 192, 192) 亮灰色
+RGB( 192, 220, 192) 淡绿色
+RGB( 166, 202, 240) 天蓝色
+RGB( 255, 251, 240) 乳白色
+RGB( 160, 160, 164) 中灰色
+
+[Application]
+;衣服测试类型：
+test_type = KML_Garment_tester
+;登录用户
+uname = hly123
+;登录密码
+login_pwd=6f88a95d47de53c5defbbb18205ac244
+;修改参数密码
+update_pwd=dcfa72075c794f5ced531f27f18ac36d
+;调试模式
+debug = False
+;1滚动测试模式，2矩形面压模式
+test_mode = 1
+;同产品通讯类型，1=使用mcu通讯，2=使用客户通讯设备通讯
+mcu_type=1
+；true 某一步测试失败将退出测试复位，否则继续测试
+test_exit = True
+
+[Coumucation]
+io_port = COM8
+io_baudrate = 115200
+loadcell_port = COM1
+loadcell_braudate = 19200
+acc_port = COM10
+acc_braudate = 115200
+mcu_port = COM5
+mcu_braudate = 19200
+moon_motor_port = COM9
+moon_motor_braudate = 38400
+
+[Motion]
+push_down_slave = 1                  下压电机从地址
+roll_pressure_pos = 1                垂直滚动下压运动距离
+roll_slave = 2                       滚动电机地址
+roll_pos=1                           滚动运动距离
+pressure_target_pos = 280000         下压目标距离1，数据必须比roll_pressure_pos数据小,并且该运动到位后一定不能接触到dut
+roll_pressure_pos = 300000            下压的终极目标位置，在下压过程中检测压力数据，压力到位后立即停止
+roll_start_pos = 30000               # 滚动测试起始位置
+vibrator_pos=12001                   振动器测试位置
+
+
+加速器包分析
+85 81 151 0 238 251 134 8 127 243 38
+85->起始
+81->数据类型(81加速度数据,82角速度,83角度)
+151 0 238 251 134 8 127 243 数据（总4个数据，两个字节表示一个数据）
+38 校验码(从第1个到检验前一个数据的和同255与操作)
+
+85, 81, 36, 1, 10, 252, 153, 8, 115, 243, 216, 85, 82, 0, 0, 0, 0, 0, 0, 115, 243, 13,85, 83, 88, 238, 31, 251, 124, 31, 115, 243, 9
+
