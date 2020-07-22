@@ -15,12 +15,12 @@ class KMY_backpack_tester(KMY_tester_base):
         status, msg = self._test_finished_step1()
         # 下压home
         if status:
-            status = self.moon_motor.SetMoonsHome(self.config_obj.Push_down_slave)
+            status = self.moon_motor.SetMoonsHome(self.config_obj.Push_down_subordinate)
 
         # roll home
         if status:
-            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_slave):
-                self.moon_motor.SetMoonsHome(self.config_obj.Roll_slave)
+            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_subordinate):
+                self.moon_motor.SetMoonsHome(self.config_obj.Roll_subordinate)
 
         # 张紧气缸复位
         if status:
@@ -31,7 +31,7 @@ class KMY_backpack_tester(KMY_tester_base):
             status, msg = self.__test_finished_step4()
 
         # 等待结束在继续
-        self._wait_moo_stop([self.config_obj.Push_down_slave, self.config_obj.Roll_slave])
+        self._wait_moo_stop([self.config_obj.Push_down_subordinate, self.config_obj.Roll_subordinate])
         try:
             # 信号等复位
             if status:
@@ -54,13 +54,13 @@ class KMY_backpack_tester(KMY_tester_base):
         status, msg = self._test_finished_step1()
         # 下压电机复位
         if status:
-            status = self._Moveline(self.config_obj.Push_down_slave, 0, SPEED)
+            status = self._Moveline(self.config_obj.Push_down_subordinate, 0, SPEED)
             self._on_display_msg('reset', 'down press motor reset {0}'.format('OK' if status else 'fail'), status)
 
         # 滚动电机复位
         if status:
-            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_slave):
-                status = self._Moveline(self.config_obj.Roll_slave, 0, SPEED)
+            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_subordinate):
+                status = self._Moveline(self.config_obj.Roll_subordinate, 0, SPEED)
                 self._on_display_msg('reset', 'roll motor reset {0}'.format('OK' if status else 'fail'), status)
 
         # 张紧气缸复位
@@ -72,7 +72,7 @@ class KMY_backpack_tester(KMY_tester_base):
             status, msg = self.__test_finished_step4()
 
         # 等待结束在继续
-        self._wait_moo_stop([self.config_obj.Push_down_slave, self.config_obj.Roll_slave])
+        self._wait_moo_stop([self.config_obj.Push_down_subordinate, self.config_obj.Roll_subordinate])
         try:
             # 信号等复位
             if status:
@@ -128,9 +128,9 @@ class KMY_backpack_tester(KMY_tester_base):
 
         # 空跑，不同dut通讯采集数据
         if dut is False:
-            slave = self.config_obj.Roll_slave
+            subordinate = self.config_obj.Roll_subordinate
             pos = self.config_obj.Roll_pos
-            test_status = self._Moveline(slave, pos, ROLL_SPEED)
+            test_status = self._Moveline(subordinate, pos, ROLL_SPEED)
             return test_status
 
         # 3开启t命令
@@ -153,15 +153,15 @@ class KMY_backpack_tester(KMY_tester_base):
             self.current_item = 'check_difference_step'
             self._on_item_start(self.current_item)
             test_status = True
-            slave = self.config_obj.Roll_slave
+            subordinate = self.config_obj.Roll_subordinate
             pos = self.config_obj.Roll_pos
             # 开始采集dut difference数据
             self.mcu.mcu_com.Start_T_Collect()
-            test_status = self._Moveline(slave, pos, ROLL_SPEED, False)
+            test_status = self._Moveline(subordinate, pos, ROLL_SPEED, False)
             raed_str = ''
             while True:
                 raed_str += self.mcu.mcu_com.Read_Buff()
-                if self.moon_motor.StopStatus(slave):
+                if self.moon_motor.StopStatus(subordinate):
                     rdstr = self.mcu.mcu_com.Read_Buff()
                     if len(rdstr) == 0:
                         time.sleep(0.01)
@@ -182,7 +182,7 @@ class KMY_backpack_tester(KMY_tester_base):
             self.mcu.t_cmdInfo.to_touch_diff(raed_str)
 
             # 等待电机运动结束
-            # self._wait_moo_stop([self.config_obj.Roll_slave])
+            # self._wait_moo_stop([self.config_obj.Roll_subordinate])
             # self._stop_collect_diff()
             # time.sleep(2)
             #  进行数据处理
@@ -221,10 +221,10 @@ class KMY_backpack_tester(KMY_tester_base):
             self.current_item = 'roll_move_test_position'
             self._on_item_start(self.current_item)
             msg = '__roll_test_step1 ok'
-            slave = self.config_obj.Roll_slave
+            subordinate = self.config_obj.Roll_subordinate
             pos = self.config_obj.Roll_start_pos
             # 开始运动到指定位置
-            test_status = self._Moveline(slave, pos, SPEED)
+            test_status = self._Moveline(subordinate, pos, SPEED)
             if test_status is False:
                 msg = 'move roll test pos fail'
 
@@ -243,14 +243,14 @@ class KMY_backpack_tester(KMY_tester_base):
             self.current_item = 'roll_test_step2'
             self._on_item_start(self.current_item)
             msg = '__roll_test_step2 ok'
-            slave = self.config_obj.Push_down_slave
+            subordinate = self.config_obj.Push_down_subordinate
             pos1 = self.config_obj.Pressure_target_pos
             pos = self.config_obj.Roll_pressure_pos
             maxN = self.config_obj.MaxN
             # 检测之前清除loadcell压力表数据
             self._clear_loadcell()
             # 运动到目标1pos
-            test_status = self._press_to_pos(self.loadcell, slave, pos1, SPEED)
+            test_status = self._press_to_pos(self.loadcell, subordinate, pos1, SPEED)
             if test_status is False:
                 msg = 'roll_test_step2 run target pos1 fail'
 
@@ -258,7 +258,7 @@ class KMY_backpack_tester(KMY_tester_base):
             if test_status:
                 # 检测之前清除loadcell压力表数据
                 # self._clear_loadcell()
-                test_status = self._run_to_InitN(self.loadcell, slave, pos, 50, maxN)
+                test_status = self._run_to_InitN(self.loadcell, subordinate, pos, 50, maxN)
                 time.sleep(1)      # 等待压力表稳定
                 if test_status is False:
                     msg = 'roll_test_step2 touch fail'
@@ -279,10 +279,10 @@ class KMY_backpack_tester(KMY_tester_base):
             self._on_item_start(self.current_item)
             msg = '__roll_test_step3 fail'
             # 滚动电机运动
-            slave = self.config_obj.Roll_slave
+            subordinate = self.config_obj.Roll_subordinate
             pos = self.config_obj.Roll_pos
-            # 可以测试产品时，必须使用 test_status = self._Moveline(slave, pos, ROLL_SPEED, False)
-            test_status = self._Moveline(slave, pos, ROLL_SPEED, False)
+            # 可以测试产品时，必须使用 test_status = self._Moveline(subordinate, pos, ROLL_SPEED, False)
+            test_status = self._Moveline(subordinate, pos, ROLL_SPEED, False)
             if test_status:
                 msg = 'roll motor move ok '
             else:
@@ -304,8 +304,8 @@ class KMY_backpack_tester(KMY_tester_base):
             self._on_item_start(self.current_item)
             msg = '__roll_test_step4 fail'
             # 下压电机复位
-            test_status = self._Moveline(self.config_obj.Push_down_slave, 0, SPEED)
-            msg = 'press moon slave={0} reset {1}'.format(self.config_obj.Push_down_slave,
+            test_status = self._Moveline(self.config_obj.Push_down_subordinate, 0, SPEED)
+            msg = 'press moon subordinate={0} reset {1}'.format(self.config_obj.Push_down_subordinate,
                                                           'ok' if test_status else 'fail')
 
             return test_status
@@ -340,19 +340,19 @@ class KMY_backpack_tester(KMY_tester_base):
             msg = '__vibration_move_step1 fail'
 
             # 下压电机复位
-            p_slav = self.config_obj.Push_down_slave
+            p_slav = self.config_obj.Push_down_subordinate
             test_status = self._Moveline(p_slav, 0, SPEED, True)
             # 移动电机移动到振动器位置
             if test_status:
-                r_slave = self.config_obj.Roll_slave
-                if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_slave):
-                    test_status = self._Moveline(r_slave, self.config_obj.Vibrator_pos, SPEED)
+                r_subordinate = self.config_obj.Roll_subordinate
+                if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_subordinate):
+                    test_status = self._Moveline(r_subordinate, self.config_obj.Vibrator_pos, SPEED)
                     if test_status is False:
                         msg = "Push_down motor not in home"
                 else:
-                    msg = "roll motor not in position, slave={0}".format(r_slave)
+                    msg = "roll motor not in position, subordinate={0}".format(r_subordinate)
             else:
-                msg = "press motor not in position, slave={0}".format(p_slav)
+                msg = "press motor not in position, subordinate={0}".format(p_slav)
             return test_status
         except Exception, ex:
             test_status = False
@@ -397,7 +397,7 @@ class KMY_backpack_tester(KMY_tester_base):
         test_status, msg = self._test_finished_step1()
         # 滚动电机复位
         if test_status:
-            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_slave):
+            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_subordinate):
                 test_status, msg = self.__test_finished_step2()
         # 张紧气缸释放
         if test_status:
@@ -428,8 +428,8 @@ class KMY_backpack_tester(KMY_tester_base):
     def __test_finished_step2(self):
         try:
             msg = '__test_finished_step2 ok'
-            test_status = self._Moveline(self.config_obj.Roll_slave, 0, SPEED)
-            msg = 'roll moon reset,slave={0} {1}'.format(self.config_obj.Roll_slave, 'ok' if test_status else 'fail')
+            test_status = self._Moveline(self.config_obj.Roll_subordinate, 0, SPEED)
+            msg = 'roll moon reset,subordinate={0} {1}'.format(self.config_obj.Roll_subordinate, 'ok' if test_status else 'fail')
             return test_status, msg
         except Exception, ex:
             test_status = False

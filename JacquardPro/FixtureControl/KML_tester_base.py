@@ -652,18 +652,18 @@ class KML_tester_base(IJacquardTest):
             self.current_item = 'check_difference_step'
             self._on_item_start(self.current_item)
             test_status = True
-            slave = self.config_obj.Roll_slave
+            subordinate = self.config_obj.Roll_subordinate
             pos = self.config_obj.Roll_pos
             # 采集dut diff数据
             # self._collect_diff()
-            test_status = self._Moveline(slave, pos, ROLL_SPEED, False)
+            test_status = self._Moveline(subordinate, pos, ROLL_SPEED, False)
             raed_str = ''
             while True:
                 # st = self.mcu.mcu_com.Read_Buff()
                 # print st
                 # raed_str += st
                 raed_str += self.mcu.mcu_com.Read_Buff()
-                if self.moon_motor.StopStatus(slave):
+                if self.moon_motor.StopStatus(subordinate):
                     raed_str += self.mcu.mcu_com.Read_Buff()
                     # self.mcu.mcu_com.close_up()
                     self.mcu.mcu_com.ClosePort()
@@ -679,7 +679,7 @@ class KML_tester_base(IJacquardTest):
             self.mcu.r_cmdinfo.todifferenceInfo(raed_str)
 
             # 等待电机运动结束
-            # self._wait_moo_stop([self.config_obj.Roll_slave])
+            # self._wait_moo_stop([self.config_obj.Roll_subordinate])
             # self._stop_collect_diff()
             # time.sleep(2)
             #  进行数据处理
@@ -1105,19 +1105,19 @@ class KML_tester_base(IJacquardTest):
             self._on_display_msg('_moon_motor', msg, status)
 
     # 直线运动
-    def _Moveline(self, slave, pos, speed, sync=True):
-        return self.moon_motor.MoveLine(slave, pos, speed, ACCELEROMETER, DECELERATION, RATIO, sync=sync)
+    def _Moveline(self, subordinate, pos, speed, sync=True):
+        return self.moon_motor.MoveLine(subordinate, pos, speed, ACCELEROMETER, DECELERATION, RATIO, sync=sync)
 
-    # 等待slave_list中所有电机运动停止后在返回
-    # slave_list电机地址列表
+    # 等待subordinate_list中所有电机运动停止后在返回
+    # subordinate_list电机地址列表
     # timeout超时时间,单位：秒，默认是30秒
     # 所有停止返回true,false返回失败
     # 返回数据(状态，未停止电机地址列表)
-    def _wait_moo_stop(self, slave_list, timeout=30):
-        if len(slave_list) > 0:
+    def _wait_moo_stop(self, subordinate_list, timeout=30):
+        if len(subordinate_list) > 0:
             endtime = time.time() + timeout
             all_stop = False
-            run_list = slave_list
+            run_list = subordinate_list
             while time.time() <= endtime:
                 all_stop = True
                 for_list = list(run_list)
@@ -1131,8 +1131,8 @@ class KML_tester_base(IJacquardTest):
         return all_stop, run_list
 
     # 运动停止返回true,否则返回false
-    def _movestop(self, slave):
-        return self.moon_motor.StopStatus(slave)
+    def _movestop(self, subordinate):
+        return self.moon_motor.StopStatus(subordinate)
 
     # 蜂鸣器控制
     # timer 响和停之间的间隔,单位秒
@@ -1173,7 +1173,7 @@ class KML_tester_base(IJacquardTest):
         self.kmlio.set_loadcell_clear(1)
 
     # 下压到指定位置，并且这个位置不会接触到dut,如果有接触，自动调整到不接触
-    def _press_to_pos(self, loadcell, slave, pos, speed, timeout=30):
+    def _press_to_pos(self, loadcell, subordinate, pos, speed, timeout=30):
         # 采集loadcell数据，如果力>=minN,立即停止,判断当前力是否在min-max之间
         try:
             if isinstance(loadcell, LocalCell):
@@ -1183,7 +1183,7 @@ class KML_tester_base(IJacquardTest):
                     limitN = int(maxN/2)
 
                 dit_pos = pos
-                self._Moveline(slave, dit_pos, speed, False)
+                self._Moveline(subordinate, dit_pos, speed, False)
 
                 endtime = time.time() + timeout
                 no_data_cnt = 0
@@ -1191,7 +1191,7 @@ class KML_tester_base(IJacquardTest):
                 while time.time() <= endtime:
                     try:
                         if self._testing is False:
-                            self.moon_motor.SetMoonsImmediatelyStop(slave)
+                            self.moon_motor.SetMoonsImmediatelyStop(subordinate)
                             self._on_display_msg('_press_to_pos', 'stop test', False)
                             return False
 
@@ -1203,20 +1203,20 @@ class KML_tester_base(IJacquardTest):
                             cuurent_n = float(str_n)
                             no_data_cnt = 0
                             if cuurent_n > limitN:
-                                self.moon_motor.SetMoonsImmediatelyStop(slave)
-                                # datas = self.moon_motor.GetMoonsStatus(slave, 8)
+                                self.moon_motor.SetMoonsImmediatelyStop(subordinate)
+                                # datas = self.moon_motor.GetMoonsStatus(subordinate, 8)
                                 # dit_pos = dit_pos - 500 if pos > 0 else dit_pos + 500  # 负号表示方向
-                                # self._Moveline(slave, dit_pos, speed)
+                                # self._Moveline(subordinate, dit_pos, speed)
                                 return True   # 只执行一次回退
                             else:
-                                if self.moon_motor.StopStatus(slave):
+                                if self.moon_motor.StopStatus(subordinate):
                                     # 运动已经停止，且压力未大于0,保存当前pos数据
                                     # self.config_obj.Pressure_target_pos = dit_pos
                                     self.display_msg.emit('_press_to_pos to pos =:{0}'.format(dit_pos), True)
                                     return True
                         # 连续5次读不到loadcell数据(有可能loadcell掉线或坏了),退出
                         if no_data_cnt >= 5:
-                            self.moon_motor.SetMoonsImmediatelyStop(slave)
+                            self.moon_motor.SetMoonsImmediatelyStop(subordinate)
                             # self.display_msg.emit('_press_to_pos fail', False)
                             self._on_display_msg('_press_to_pos', 'collect loadcell fail, no_data_cnt=5', False)
                             return False
@@ -1231,12 +1231,12 @@ class KML_tester_base(IJacquardTest):
 
     # 运动到指定力位置
     # loadcell 读压力值的loadcell对象
-    # slave 电机地址
+    # subordinate 电机地址
     # pos 运动距离
     # speed 运动速度
     # toN 目标压力
     # deviation 目标压力误差百分比，默认是5%
-    def _run_to_InitN(self, loadcell, slave, pos, speed, toN, deviation=5, timeout=30):
+    def _run_to_InitN(self, loadcell, subordinate, pos, speed, toN, deviation=5, timeout=30):
         # 采集loadcell数据，如果力>=minN,立即停止,判断当前力是否在min-max之间
         try:
             if isinstance(loadcell, LocalCell):
@@ -1244,19 +1244,19 @@ class KML_tester_base(IJacquardTest):
                 minN = toN - toN * deviation / 100.00
                 # maxN = toN + toN * 50 / 100.00
                 maxN = toN + 0.3
-                self._Moveline(slave, dit_pos, speed, False)
+                self._Moveline(subordinate, dit_pos, speed, False)
                 endtime = time.time() + timeout
                 no_data_cnt = 0
                 loadcell.ClearBuffer()  # 执行采集前清缓存？还是每次采集清除缓存
                 while True:
                     try:
                         if self._testing is False:
-                            self.moon_motor.SetMoonsImmediatelyStop(slave)
+                            self.moon_motor.SetMoonsImmediatelyStop(subordinate)
                             self._on_display_msg('_run_to_InitN', 'stop test', False)
                             return False
 
                         if time.time() > endtime:
-                            self.moon_motor.SetMoonsImmediatelyStop(slave)
+                            self.moon_motor.SetMoonsImmediatelyStop(subordinate)
                             return False
                         str_n = loadcell.ReadLocalCellSigle(timeout=0.01)
                         print 'str_n = {0}'.format(str_n).center(100, '-')
@@ -1268,7 +1268,7 @@ class KML_tester_base(IJacquardTest):
                                 cuurent_n = float(str_n)
                                 no_data_cnt = 0
                                 if cuurent_n >= MAX_N:
-                                    self.moon_motor.SetMoonsImmediatelyStop(slave)
+                                    self.moon_motor.SetMoonsImmediatelyStop(subordinate)
                                     str_n = loadcell.ReadLocalCellSigle(timeout=0.01)
                                     cuurent_n = float(str_n)
                                     if cuurent_n >= MAX_N:
@@ -1276,31 +1276,31 @@ class KML_tester_base(IJacquardTest):
                                                              False)
                                         return False
                                 if cuurent_n >= minN:
-                                    self.moon_motor.SetMoonsImmediatelyStop(slave)
+                                    self.moon_motor.SetMoonsImmediatelyStop(subordinate)
                                     speed = 100
                                     if cuurent_n <= maxN:
                                         return True
                                     else:
                                         # 大于最大，必须回退
-                                        # datas = self.moon_motor.GetMoonsStatus(slave, 8)
+                                        # datas = self.moon_motor.GetMoonsStatus(subordinate, 8)
                                         dit_pos = dit_pos - 5000 if pos > 0 else dit_pos + 5000  # 负号表示方向
-                                        self._Moveline(slave, dit_pos, speed, False)
+                                        self._Moveline(subordinate, dit_pos, speed, False)
                                 else:
                                     # 已到位，必须增加运动距离，达到指定力附近
                                     # print self.moon_motor,
-                                    if self.moon_motor.StopStatus(slave):
+                                    if self.moon_motor.StopStatus(subordinate):
                                         dit_pos = dit_pos + 2000 if pos > 0 else dit_pos - 2000  # 负号表示方向
-                                        self._Moveline(slave, dit_pos, speed, False)
+                                        self._Moveline(subordinate, dit_pos, speed, False)
                             except Exception,ex:
                                 no_data_cnt = no_data_cnt + 1
 
                         # 连续5次读不到loadcell数据(有可能loadcell掉线或坏了),退出
                         if no_data_cnt >= 10:
-                            self.moon_motor.SetMoonsImmediatelyStop(slave)
+                            self.moon_motor.SetMoonsImmediatelyStop(subordinate)
                             self._on_display_msg('_run_to_InitN', 'collect loadcell fail, no_data_cnt=5', False)
                             return False
                     except Exception, ex:
-                        self.moon_motor.SetMoonsImmediatelyStop(slave)
+                        self.moon_motor.SetMoonsImmediatelyStop(subordinate)
                         self._on_display_msg('_run_to_InitN', 'exception:{0}'.format(ex.message), False)
             else:
                 self._on_display_msg('_run_to_InitN', 'loadcell object is not LocalCell type', False)
@@ -1322,7 +1322,7 @@ class KML_tester_base(IJacquardTest):
                 print 'count = {0}'.format(i).center(100, '-')
                 str_n = '100000'+','
                 msg = '__roll_test_step2 ok'
-                slave = self.config_obj.Push_down_slave
+                subordinate = self.config_obj.Push_down_subordinate
                 pos1 = self.config_obj.Pressure_target_pos
                 pos = self.config_obj.Roll_pressure_pos
                 maxN = 0.92
@@ -1331,7 +1331,7 @@ class KML_tester_base(IJacquardTest):
                 # 检测之前清除loadcell压力表数据
                 self._clear_loadcell()
                 # 运动到目标1pos
-                test_status = self._press_to_pos(self.loadcell, slave, pos1, SPEED)
+                test_status = self._press_to_pos(self.loadcell, subordinate, pos1, SPEED)
                 if test_status is False:
                     msg = 'roll_test_step2 run target pos1 fail'
                     self.display_msg.emit(msg, False)
@@ -1340,23 +1340,23 @@ class KML_tester_base(IJacquardTest):
                 if test_status:
                     # 检测之前清除loadcell压力表数据
                     # self._clear_loadcell()
-                    test_status = self._run_to_InitN(self.loadcell, slave, pos, 50, maxN)
+                    test_status = self._run_to_InitN(self.loadcell, subordinate, pos, 50, maxN)
                     if test_status is False:
                         msg = 'roll_test_step2 touch fail'
                     else:
                         time.sleep(2)           #
                         # 滚动前压力-->接触压力
                         str_n = str_n + self.loadcell.ReadLocalCellSigle(timeout=0.02)+','
-                        roll_slave = self.config_obj.Roll_slave
-                        test_status = self._Moveline(roll_slave, 100000, ROLL_SPEED, False)         # 开始滚动
+                        roll_subordinate = self.config_obj.Roll_subordinate
+                        test_status = self._Moveline(roll_subordinate, 100000, ROLL_SPEED, False)         # 开始滚动
                         if test_status:
                             while True:
                                 # 滚动过程压力变化
                                 str_n = str_n + ' ' + self.loadcell.ReadLocalCellSigle(timeout=0.01)
-                                if self.moon_motor.StopStatus(roll_slave):
+                                if self.moon_motor.StopStatus(roll_subordinate):
                                     # 下压复位
-                                    self._Moveline(slave, 0, SPEED)
-                                    self._Moveline(roll_slave, 0, SPEED)
+                                    self._Moveline(subordinate, 0, SPEED)
+                                    self._Moveline(roll_subordinate, 0, SPEED)
                                     # 复位完成后读压力表数据
                                     str_n = str_n + ',' + self.loadcell.ReadLocalCellSigle(timeout=0.01)
                                     # 写入数据

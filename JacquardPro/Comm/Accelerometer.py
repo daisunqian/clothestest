@@ -101,7 +101,7 @@ class AccelerometerBll(QThread):
         super(AccelerometerBll, self).__init__()
         self._port = port
         self._baudrate = baudrate
-        self.master = None        # Serial(port, baudrate, 8, PARITY_NONE, STOPBITS_ONE)
+        self.main = None        # Serial(port, baudrate, 8, PARITY_NONE, STOPBITS_ONE)
         self.data_list = []       # 存储采集数据,每个数据是AccelerometerDataInf对象
         self._reading = False
         self.msg = ''
@@ -116,17 +116,17 @@ class AccelerometerBll(QThread):
                 self._port = port
                 return True, port
             else:
-                self.master = None
+                self.main = None
 
         return False, 'acc port connect fail'
 
     # 打开串口
     def open_serial(self):
         try:
-            if self.master is None:
-                self.master = Serial(self._port, self._baudrate, 8, PARITY_NONE, STOPBITS_ONE)
-            if self.master.is_open is False:
-                self.master.open()
+            if self.main is None:
+                self.main = Serial(self._port, self._baudrate, 8, PARITY_NONE, STOPBITS_ONE)
+            if self.main.is_open is False:
+                self.main.open()
             return True
         except Exception, ex:
             self.msg = ex.message
@@ -134,8 +134,8 @@ class AccelerometerBll(QThread):
 
     # 关闭端口
     def close_serial(self):
-        if self.master is not None:
-            self.master.close()
+        if self.main is not None:
+            self.main.close()
 
     # 用于端口查找
     def _port_check(self, port, timeout=2):
@@ -146,12 +146,12 @@ class AccelerometerBll(QThread):
                 respone_ls = []
                 while time.time() - starttime <= timeout:
                     # try:
-                    #     buf = self.master.read_all()
+                    #     buf = self.main.read_all()
                     # except Exception, ex:
-                    #     self.master = None
+                    #     self.main = None
                     #     time.sleep(1)
                     #     self.open_serial()
-                    buf = self.master.read_all()
+                    buf = self.main.read_all()
                     if len(buf) > 0:
                         datals = [ord(data) for data in buf]
                         respone_ls.extend(datals)
@@ -179,9 +179,9 @@ class AccelerometerBll(QThread):
     def clearBuff(self):
         try:
             if self.open_serial():
-                self.master.read_all()
+                self.main.read_all()
         except Exception, ex:
-            self.master = None
+            self.main = None
             time.sleep(1)    # 等1秒后返回
 
     # 异步读数据，通过stop_read控制结束
@@ -202,7 +202,7 @@ class AccelerometerBll(QThread):
             self.clearBuff()
         starttime = time.time()
         while time.time() - starttime <= timeout:
-            buf = self.master.read_all()
+            buf = self.main.read_all()
             if len(buf) > 0:
                 datals = [ord(data) for data in buf]
                 respone_ls.extend(datals)
@@ -257,7 +257,7 @@ class AccelerometerBll(QThread):
         starttime = time.time()
         buf = ''
         while time.time() - starttime <= timeout:
-            buf += self.master.read_all()
+            buf += self.main.read_all()
         if len(buf) > 0:
             datals = [ord(data) for data in buf]
             respone_ls.extend(datals)
@@ -298,7 +298,7 @@ class AccelerometerBll(QThread):
         data_package = []
         self.open_serial()
         while self._reading:
-            buf = self.master.read_all()
+            buf = self.main.read_all()
             if len(buf) > 0:
                 datals = [ord(data) for data in buf]
                 respone_ls.extend(datals)

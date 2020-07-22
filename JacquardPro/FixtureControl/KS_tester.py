@@ -101,10 +101,10 @@ class KS_tester(KMY_backpack_tester):
 
         # 下压home
         if status:
-            status = self.moon_motor.SetMoonsHome(self.config_obj.Push_down_slave)
+            status = self.moon_motor.SetMoonsHome(self.config_obj.Push_down_subordinate)
         # roll home
         if status:
-            self.moon_motor.SetMoonsHome(self.config_obj.Roll_slave)
+            self.moon_motor.SetMoonsHome(self.config_obj.Roll_subordinate)
 
         # 张紧气缸复位
         if status:
@@ -115,7 +115,7 @@ class KS_tester(KMY_backpack_tester):
             status, msg = self.__test_finished_step4()
 
         # 等待结束在继续
-        self._wait_moo_stop([self.config_obj.Push_down_slave, self.config_obj.Roll_slave])
+        self._wait_moo_stop([self.config_obj.Push_down_subordinate, self.config_obj.Roll_subordinate])
         try:
             # 信号等复位
             if status:
@@ -143,12 +143,12 @@ class KS_tester(KMY_backpack_tester):
 
         # 下压电机复位
         if status:
-            status = self._Moveline(self.config_obj.Push_down_slave, 0, SPEED)
+            status = self._Moveline(self.config_obj.Push_down_subordinate, 0, SPEED)
             self._on_display_msg('reset', 'down press motor reset {0}'.format('OK' if status else 'fail'), status)
 
         # 滚动电机复位
         if status:
-            status = self._Moveline(self.config_obj.Roll_slave, 0, SPEED)
+            status = self._Moveline(self.config_obj.Roll_subordinate, 0, SPEED)
             self._on_display_msg('reset', 'roll motor reset {0}'.format('OK' if status else 'fail'), status)
 
         # 张紧气缸复位
@@ -160,7 +160,7 @@ class KS_tester(KMY_backpack_tester):
             status, msg = self.__test_finished_step4()
 
         # 等待结束在继续
-        self._wait_moo_stop([self.config_obj.Push_down_slave, self.config_obj.Roll_slave])
+        self._wait_moo_stop([self.config_obj.Push_down_subordinate, self.config_obj.Roll_subordinate])
         try:
             # 信号等复位
             if status:

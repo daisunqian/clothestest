@@ -16,7 +16,7 @@ class LocalCell(object):
     
     def __init__(self):
         self.last_str = ""
-        self.master = None
+        self.main = None
 
     # 自定连接
     def auto_connect(self, port_list):
@@ -24,8 +24,8 @@ class LocalCell(object):
             return False, 'do not ports'
         try:
             for port in port_list:
-                if self.master is not None:
-                    self.master.close()
+                if self.main is not None:
+                    self.main.close()
                 try:
                     if self.OpenSerial(port)[0]:
                         time.sleep(0.2)
@@ -34,35 +34,35 @@ class LocalCell(object):
                             rtn_f = float(rtn)
                             return True, port
                 except Exception, ex:
-                    if self.master is not None:
-                        self.master.close()
+                    if self.main is not None:
+                        self.main.close()
             return False, 'moon port connect fail'
         finally:
-            if self.master is not None:
-                self.master.close()
+            if self.main is not None:
+                self.main.close()
 
     def OpenSerial(self, port, braudate=19200):
         '''
         braudate is default set 19200 for loadcell hardware.
         '''
         try:
-            self.master = serial.Serial(port, braudate)
+            self.main = serial.Serial(port, braudate)
             return (True, 'OK')
         except Exception, ex:
             return False, ex.message
         
     def CloseSerial(self):
         self.last_str = ""
-        if self.master is not None:
-            self.master.close()
+        if self.main is not None:
+            self.main.close()
 
     def ClearBuffer(self):
         #  discard all the data in cache
         #  begin to get loadcell data for
-        if self.master.is_open is False:
-            self.master.open()
+        if self.main.is_open is False:
+            self.main.open()
         self.last_str = ""
-        self.master.read_all()
+        self.main.read_all()
 
     # 返回loadcell缓存全部有效数据
     def ReadLocalCell(self):
@@ -70,10 +70,10 @@ class LocalCell(object):
         Get all data from serial cache and ingore the first data when it is not a float.
         '''
 
-        if self.master.is_open is False:
-            self.master.open()
+        if self.main.is_open is False:
+            self.main.open()
 
-        str1 = self.master.read_all()
+        str1 = self.main.read_all()
         if(len(str1) != 0):
             str1 = self.last_str + str1
             str_list = filter(None, str1.split(' '))
@@ -88,13 +88,13 @@ class LocalCell(object):
         Get all data from serial cache and ingore the first data when it is not a float.
         '''
 
-        if self.master.is_open is False:
-            self.master.open()
+        if self.main.is_open is False:
+            self.main.open()
 
         st = time.time()
         str1 = ''
         while time.time() - st <= timeout:
-            str1 += self.master.read_all()
+            str1 += self.main.read_all()
             # print str1
             # print '-'.center(100, '-')
             if(len(str1) != 0):
@@ -113,7 +113,7 @@ class LocalCell(object):
                         continue
                 except Exception, ex:
                     pass
-        str1 += self.master.read_all()
+        str1 += self.main.read_all()
         #  超时处理下数据
         if len(str1) > 0:
             str_list = filter(None, str1.split(' '))
@@ -126,7 +126,7 @@ class LocalCell(object):
 
     # 测试使用，直接返回采集到的数据
     def read_test(self):
-        str1 = self.master.read_all()
+        str1 = self.main.read_all()
         if(len(str1) != 0):
             str1 = self.last_str + str1
             return str1

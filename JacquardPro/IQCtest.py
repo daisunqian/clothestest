@@ -748,7 +748,7 @@ if __name__ == "__main__":
                     mcu = MCUComm(appconfig.MCU_Port)
                     mcu.init()
                     time.sleep(0.2)
-                    mcu.mcu_master.read_all()
+                    mcu.mcu_main.read_all()
                     data = mcu.Read_I()
                     print data
                     if len(data) > 0:
@@ -770,7 +770,7 @@ if __name__ == "__main__":
                         mcu.init()
                         time.sleep(0.1)
                         for i in range(2):
-                            mcu.mcu_master.read_all()
+                            mcu.mcu_main.read_all()
                             data = mcu.Read_I()
                             print data
                             if len(data) > 0:

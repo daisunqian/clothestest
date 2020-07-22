@@ -246,11 +246,11 @@ class APPConfigparse(object):
 
     # 下压电机从地址
     @property
-    def Push_down_slave(self):
+    def Push_down_subordinate(self):
         try:
-            return self.config.getint('Motion', 'push_down_slave')
+            return self.config.getint('Motion', 'push_down_subordinate')
         except Exception, ex:
-            self.config.set('Motion', 'push_down_slave', 1)
+            self.config.set('Motion', 'push_down_subordinate', 1)
 
     # 下压运动目标距离1，到位后一定不能接触到dut,并且比Roll_pressure_pos小
     @property
@@ -282,11 +282,11 @@ class APPConfigparse(object):
 
     # 滚动电机地址
     @property
-    def Roll_slave(self):
+    def Roll_subordinate(self):
         try:
-            return self.config.getint('Motion', 'roll_slave')
+            return self.config.getint('Motion', 'roll_subordinate')
         except Exception, ex:
-            self.config.set('Motion', 'roll_slave', 2)
+            self.config.set('Motion', 'roll_subordinate', 2)
 
     # 滚动运动距离
     @property
