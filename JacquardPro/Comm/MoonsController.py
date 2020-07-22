@@ -30,7 +30,7 @@ class MoonsController(object):
 
     # 自动查找端口
     # port_list端口集合
-    def auto_connect(self, port_list, slave=1):
+    def auto_connect(self, port_list, subordinate=1):
         if port_list is None or len(port_list) == 0:
             return False, 'do not ports'
         for port in port_list:
@@ -38,7 +38,7 @@ class MoonsController(object):
                 self.modbus.close()
             try:
                 self.modbus = InnorevModbus.getInstance(port, True)
-                if self.checkConnect(slave):
+                if self.checkConnect(subordinate):
                     return True, port
             except Exception, ex:
                 if self.modbus is not None:
@@ -50,13 +50,13 @@ class MoonsController(object):
         return False, 'moon port connect fail'
 
     # 检测连接
-    def checkConnect(self, slave=1):
+    def checkConnect(self, subordinate=1):
         try:
             if self.modbus is None:
                 self.modbus = InnorevModbus.getInstance(self.port)
 
             if self.modbus.InnorevOpenSerial():
-                data = self.CheckHomeStatus(slave)
+                data = self.CheckHomeStatus(subordinate)
                 return True
             else:
                 return False
@@ -64,7 +64,7 @@ class MoonsController(object):
             return False
 
     # 读取电机状态()
-    def GetMoonsStatus(self, slave, count=1):
+    def GetMoonsStatus(self, subordinate, count=1):
         '''
         0x0001   ---    Motor Enabled(Motor Disabled if this bit = 0)
         0x0002   ---    Sampling(for Quick Tuner)
@@ -82,66 +82,66 @@ class MoonsController(object):
         0x4000   ---    Q program is running
         0x8000   ---    Initializing(happens at power up)
         '''
-        data = self.modbus.InnorevReadHodlingRegister(slave, self.MoonsStatusAddress, count)
+        data = self.modbus.InnorevReadHodlingRegister(subordinate, self.MoonsStatusAddress, count)
         return data
 
     # 检测home位置
-    def CheckHomeStatus(self, slave):
-        self.clear_alarm(slave)
-        data = self.modbus.InnorevReadHodlingRegister(slave, self.MoonsHomeStatus, 2)
+    def CheckHomeStatus(self, subordinate):
+        self.clear_alarm(subordinate)
+        data = self.modbus.InnorevReadHodlingRegister(subordinate, self.MoonsHomeStatus, 2)
         if((data[0] == 1 or data[1] == 1)):
             return True
         else:
             return False
 
-    def clear_alarm(self, slave):
-        status = self.modbus.InnorevWriteSingleRegister(slave, self.MoonsImmediateControlAddress, self.Clear_Alarm_OP)
+    def clear_alarm(self, subordinate):
+        status = self.modbus.InnorevWriteSingleRegister(subordinate, self.MoonsImmediateControlAddress, self.Clear_Alarm_OP)
         time.sleep(0.01)
         return status
 
     # 设置home, 回原点
-    def SetMoonsHome(self, slave=1):
-        self.clear_alarm(slave)
+    def SetMoonsHome(self, subordinate=1):
+        self.clear_alarm(subordinate)
         para_list = []
         para_list.append(0x78)
         para_list.append(0x01)
-        if(True == self.modbus.InnorevWriteMultipleRegister(slave, self.MoonsImmediateControlAddress, para_list)):
-            IsInPosition = self.CheckHomeStatus(slave)
+        if(True == self.modbus.InnorevWriteMultipleRegister(subordinate, self.MoonsImmediateControlAddress, para_list)):
+            IsInPosition = self.CheckHomeStatus(subordinate)
             while(False == IsInPosition):
                 time.sleep(0.1)
-                IsInPosition = self.CheckHomeStatus(slave)
+                IsInPosition = self.CheckHomeStatus(subordinate)
             return True
 
     # 设置电机0点???
-    def SetMoonsZeroPosition(self, slave, para_list):
-        self.clear_alarm(slave)
-        if(True == self.modbus.InnorevWriteMultipleRegister(slave,self.MoonsImmediateControlAddress, para_list)):
+    def SetMoonsZeroPosition(self, subordinate, para_list):
+        self.clear_alarm(subordinate)
+        if(True == self.modbus.InnorevWriteMultipleRegister(subordinate,self.MoonsImmediateControlAddress, para_list)):
             para_list1 = []
             para_list1.append(0x98)
             para_list1.append(para_list[1])
-            if(True == self.modbus.InnorevWriteMultipleRegister(slave,self.MoonsImmediateControlAddress, para_list1)):
+            if(True == self.modbus.InnorevWriteMultipleRegister(subordinate,self.MoonsImmediateControlAddress, para_list1)):
                 para_list2 = []
                 para_list2.append(0xA5)
                 para_list2.append(para_list[1])
-                if(True == self.modbus.InnorevWriteMultipleRegister(slave,self.MoonsImmediateControlAddress, para_list1)):
+                if(True == self.modbus.InnorevWriteMultipleRegister(subordinate,self.MoonsImmediateControlAddress, para_list1)):
                     return True
                 else:
                     return False
 
     # 立即运动
-    def SetMoonsImmediatelyMove(self, slave):
-        self.clear_alarm(slave)
-        return self.modbus.InnorevWriteSingleRegister(slave, self.MoonsImmediateControlAddress, 0x67)
+    def SetMoonsImmediatelyMove(self, subordinate):
+        self.clear_alarm(subordinate)
+        return self.modbus.InnorevWriteSingleRegister(subordinate, self.MoonsImmediateControlAddress, 0x67)
 
     # 立即停止
-    def SetMoonsImmediatelyStop(self, slave):
-        return self.modbus.InnorevWriteSingleRegister(slave, self.MoonsImmediateControlAddress, 0xE1)
+    def SetMoonsImmediatelyStop(self, subordinate):
+        return self.modbus.InnorevWriteSingleRegister(subordinate, self.MoonsImmediateControlAddress, 0xE1)
 
     # 运动到指定pose位置
-    def SetMoonsPosition(self, slave, para_list):
-        self.clear_alarm(slave)
-        if( True == self.modbus.InnorevWriteMultipleRegister(slave, self.MoonsPositionAddress, para_list)):
-            if(True == self.SetMoonsImmediatelyMove(slave)):
+    def SetMoonsPosition(self, subordinate, para_list):
+        self.clear_alarm(subordinate)
+        if( True == self.modbus.InnorevWriteMultipleRegister(subordinate, self.MoonsPositionAddress, para_list)):
+            if(True == self.SetMoonsImmediatelyMove(subordinate)):
                 return True
             else:
                 return False
@@ -162,8 +162,8 @@ class MoonsController(object):
         return int(((degree * 10000) / 360)*ratio)
 
     # 角度(旋转)运动
-    def MoveDegree(self, slave, position, speed, acceleration, deceleration, ratio=1):
-        self.clear_alarm(slave)
+    def MoveDegree(self, subordinate, position, speed, acceleration, deceleration, ratio=1):
+        self.clear_alarm(subordinate)
         position = self._degreeToPosition(position,ratio)
         para_list = []
         para_list.append(acceleration)
@@ -173,42 +173,42 @@ class MoonsController(object):
         para_list.append(var1)
         para_list.append(var2)
         number = 1
-        if( True == self.SetMoonsPosition(slave,para_list)):
-            data = self.GetMoonsStatus(slave)
+        if( True == self.SetMoonsPosition(subordinate,para_list)):
+            data = self.GetMoonsStatus(subordinate)
             while(int(data[0]) < 9):
                 number = number + 1
                 if(number > 15):
                    break
                 else:
                     time.sleep(0.1)
-                    data = self.GetMoonsStatus(slave)
+                    data = self.GetMoonsStatus(subordinate)
             return True
         else:
             return False
 
     # 直线运动
     # position 使用脉冲数据
-    def MoveLine(self, slave, position, speed, acceleration, deceleration, ratio=1, lead=10, sync=True, timeout=30):
-        self.clear_alarm(slave)
+    def MoveLine(self, subordinate, position, speed, acceleration, deceleration, ratio=1, lead=10, sync=True, timeout=30):
+        self.clear_alarm(subordinate)
         para_list = self.get_para_list(position, speed, acceleration, deceleration, ratio=ratio, lead=lead)
-        data = self.GetMoonsStatus(slave, 8)
+        data = self.GetMoonsStatus(subordinate, 8)
         # print "position:", position
-        # print slave, ":", data
+        # print subordinate, ":", data
         test_status = False
-        if( True == self.SetMoonsPosition(slave,para_list)):
-            data = self.GetMoonsStatus(slave, 8)
-            # print slave,"->:",data
+        if( True == self.SetMoonsPosition(subordinate,para_list)):
+            data = self.GetMoonsStatus(subordinate, 8)
+            # print subordinate,"->:",data
             if sync:
                 st = time.time()
                 # while (data[0] != 9):
                 while time.time() - st <= timeout:
-                    data = self.GetMoonsStatus(slave, 8)
+                    data = self.GetMoonsStatus(subordinate, 8)
                     if data[0] == 9:
                         test_status = True
                         break
-                    # print slave, ":", data
+                    # print subordinate, ":", data
                     time.sleep(0.1)
-                    # print slave,":",data
+                    # print subordinate,":",data
                     if data[2] == 18:
                         break
             else:
@@ -218,8 +218,8 @@ class MoonsController(object):
             return False
 
     # 停止状态，true已停止，否则在运动中
-    def StopStatus(self, slave):
-        datas = self.GetMoonsStatus(slave, 8)
+    def StopStatus(self, subordinate):
+        datas = self.GetMoonsStatus(subordinate, 8)
         # print datas
         return datas[0] == 9 or datas[2] == 18
 

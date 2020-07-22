@@ -142,12 +142,12 @@ class KMY_tester_base(KML_tester_base):
 
         # 下压到指定位置，并且这个位置不会接触到dut,如果有接触，自动调整到不接触
 
-    # def _press_to_pos(self, loadcell, slave, pos, speed, timeout=30):
+    # def _press_to_pos(self, loadcell, subordinate, pos, speed, timeout=30):
     #     # 采集loadcell数据，如果力>=minN,立即停止,判断当前力是否在min-max之间
     #     try:
     #         if isinstance(loadcell, LocalCell):
     #             dit_pos = pos
-    #             self._Moveline(slave, dit_pos, speed, False)
+    #             self._Moveline(subordinate, dit_pos, speed, False)
     #
     #             endtime = time.time() + timeout
     #             no_data_cnt = 0
@@ -155,7 +155,7 @@ class KMY_tester_base(KML_tester_base):
     #             while time.time() <= endtime:
     #                 try:
     #                     if self._testing is False:
-    #                         self.moon_motor.SetMoonsImmediatelyStop(slave)
+    #                         self.moon_motor.SetMoonsImmediatelyStop(subordinate)
     #                         self._on_display_msg('_press_to_pos', 'stop test', False)
     #                         return False
     #
@@ -167,20 +167,20 @@ class KMY_tester_base(KML_tester_base):
     #                         cuurent_n = float(str_n)
     #                         no_data_cnt = 0
     #                         if cuurent_n >= 0.1:
-    #                             self.moon_motor.SetMoonsImmediatelyStop(slave)
-    #                             # datas = self.moon_motor.GetMoonsStatus(slave, 8)
+    #                             self.moon_motor.SetMoonsImmediatelyStop(subordinate)
+    #                             # datas = self.moon_motor.GetMoonsStatus(subordinate, 8)
     #                             # dit_pos = dit_pos - 500 if pos > 0 else dit_pos + 500  # 负号表示方向
-    #                             # self._Moveline(slave, dit_pos, speed)
+    #                             # self._Moveline(subordinate, dit_pos, speed)
     #                             return True  # 只执行一次回退
     #                         else:
-    #                             if self.moon_motor.StopStatus(slave):
+    #                             if self.moon_motor.StopStatus(subordinate):
     #                                 # 运动已经停止，且压力未大于0,保存当前pos数据
     #                                 # self.config_obj.Pressure_target_pos = dit_pos
     #                                 self.display_msg.emit('_press_to_pos to pos =:{0}'.format(dit_pos), True)
     #                                 return True
     #                     # 连续5次读不到loadcell数据(有可能loadcell掉线或坏了),退出
     #                     if no_data_cnt >= 5:
-    #                         self.moon_motor.SetMoonsImmediatelyStop(slave)
+    #                         self.moon_motor.SetMoonsImmediatelyStop(subordinate)
     #                         # self.display_msg.emit('_press_to_pos fail', False)
     #                         self._on_display_msg('_press_to_pos', 'collect loadcell fail, no_data_cnt=5', False)
     #                         return False
@@ -195,12 +195,12 @@ class KMY_tester_base(KML_tester_base):
     #
     # # 运动到指定力位置
     # # loadcell 读压力值的loadcell对象
-    # # slave 电机地址
+    # # subordinate 电机地址
     # # pos 运动距离
     # # speed 运动速度
     # # toN 目标压力
     # # deviation 目标压力误差百分比，默认是5%
-    # def _run_to_InitN(self, loadcell, slave, pos, speed, toN, deviation=5, timeout=30):
+    # def _run_to_InitN(self, loadcell, subordinate, pos, speed, toN, deviation=5, timeout=30):
     #     # 采集loadcell数据，如果力>=minN,立即停止,判断当前力是否在min-max之间
     #     try:
     #         if isinstance(loadcell, LocalCell):
@@ -208,19 +208,19 @@ class KMY_tester_base(KML_tester_base):
     #             minN = toN - toN * deviation / 100.00
     #             # maxN = toN + toN * 50 / 100.00
     #             maxN = toN + 0.3
-    #             self._Moveline(slave, dit_pos, speed, False)
+    #             self._Moveline(subordinate, dit_pos, speed, False)
     #             endtime = time.time() + timeout
     #             no_data_cnt = 0
     #             loadcell.ClearBuffer()  # 执行采集前清缓存？还是每次采集清除缓存
     #             while True:
     #                 try:
     #                     if self._testing is False:
-    #                         self.moon_motor.SetMoonsImmediatelyStop(slave)
+    #                         self.moon_motor.SetMoonsImmediatelyStop(subordinate)
     #                         self._on_display_msg('_run_to_InitN', 'stop test', False)
     #                         return False
     #
     #                     if time.time() > endtime:
-    #                         self.moon_motor.SetMoonsImmediatelyStop(slave)
+    #                         self.moon_motor.SetMoonsImmediatelyStop(subordinate)
     #                         return False
     #                     str_n = loadcell.ReadLocalCellSigle(timeout=0.01)
     #                     print 'str_n = {0}'.format(str_n).center(100, '-')
@@ -232,7 +232,7 @@ class KMY_tester_base(KML_tester_base):
     #                             cuurent_n = float(str_n)
     #                             no_data_cnt = 0
     #                             if cuurent_n >= MAX_N:
-    #                                 self.moon_motor.SetMoonsImmediatelyStop(slave)
+    #                                 self.moon_motor.SetMoonsImmediatelyStop(subordinate)
     #                                 str_n = loadcell.ReadLocalCellSigle(timeout=0.01)
     #                                 cuurent_n = float(str_n)
     #                                 if cuurent_n >= MAX_N:
@@ -240,31 +240,31 @@ class KMY_tester_base(KML_tester_base):
     #                                                          False)
     #                                     return False
     #                             if cuurent_n >= minN:
-    #                                 self.moon_motor.SetMoonsImmediatelyStop(slave)
+    #                                 self.moon_motor.SetMoonsImmediatelyStop(subordinate)
     #                                 speed = 100
     #                                 if cuurent_n <= maxN:
     #                                     return True
     #                                 else:
     #                                     # 大于最大，必须回退
-    #                                     # datas = self.moon_motor.GetMoonsStatus(slave, 8)
+    #                                     # datas = self.moon_motor.GetMoonsStatus(subordinate, 8)
     #                                     dit_pos = dit_pos - 5000 if pos > 0 else dit_pos + 5000  # 负号表示方向
-    #                                     self._Moveline(slave, dit_pos, speed, False)
+    #                                     self._Moveline(subordinate, dit_pos, speed, False)
     #                             else:
     #                                 # 已到位，必须增加运动距离，达到指定力附近
     #                                 # print self.moon_motor,
-    #                                 if self.moon_motor.StopStatus(slave):
+    #                                 if self.moon_motor.StopStatus(subordinate):
     #                                     dit_pos = dit_pos + 5000 if pos > 0 else dit_pos - 5000  # 负号表示方向
-    #                                     self._Moveline(slave, dit_pos, speed, False)
+    #                                     self._Moveline(subordinate, dit_pos, speed, False)
     #                         except Exception, ex:
     #                             no_data_cnt = no_data_cnt + 1
     #
     #                     # 连续5次读不到loadcell数据(有可能loadcell掉线或坏了),退出
     #                     if no_data_cnt >= 10:
-    #                         self.moon_motor.SetMoonsImmediatelyStop(slave)
+    #                         self.moon_motor.SetMoonsImmediatelyStop(subordinate)
     #                         self._on_display_msg('_run_to_InitN', 'collect loadcell fail, no_data_cnt=5', False)
     #                         return False
     #                 except Exception, ex:
-    #                     self.moon_motor.SetMoonsImmediatelyStop(slave)
+    #                     self.moon_motor.SetMoonsImmediatelyStop(subordinate)
     #                     self._on_display_msg('_run_to_InitN', 'exception:{0}'.format(ex.message), False)
     #         else:
     #             self._on_display_msg('_run_to_InitN', 'loadcell object is not LocalCell type', False)

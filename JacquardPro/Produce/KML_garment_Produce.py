@@ -40,8 +40,8 @@ class KML_garment_Produce(IProduce):
                     status = self.jacquard_tester.backhome()
                     if status:
                         self._on_display_msg(u'正在进行电机home校准...', True)
-                        self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Push_down_slave)
-                        self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Roll_slave)
+                        self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Push_down_subordinate)
+                        self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Roll_subordinate)
                         self._on_display_msg(u'电机home校准完成', True)
                         return True
             else:
@@ -296,7 +296,7 @@ class KML_garment_Produce(IProduce):
                 if isinstance(self.jacquard_tester.moon_motor, MoonsController.MoonsController):
                     # 滚动电机运动到指定位置
                     self._on_test_step_start(u'滚动电机运动')
-                    status = self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_slave,
+                    status = self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_subordinate,
                                                                       self.appconfig.Roll_start_pos, 600, 300, 300)
 
                     # rst = QtGui.QMessageBox.question(None, u'询问', u'是否到位?',
@@ -307,7 +307,7 @@ class KML_garment_Produce(IProduce):
                                                u'到位' if status else u'未到位')
                     # 滚动电机复位
                     self._on_test_step_start(u'滚动电机复位')
-                    status = self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_slave,0, 600, 300, 300)
+                    status = self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_subordinate,0, 600, 300, 300)
                     status = self._on_messag_box_open(u'询问', u'滚动电机复位是否到位?')
                     # rst = QtGui.QMessageBox.question(None, u'询问', u'是否到位?',
                     #                                  QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
@@ -316,7 +316,7 @@ class KML_garment_Produce(IProduce):
                                                u'到位' if status else u'未到位')
                     # 下压电机运动到Pressure_target_pos位置
                     self._on_test_step_start(u'下压电机运动')
-                    status = self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Push_down_slave,
+                    status = self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Push_down_subordinate,
                                                                       self.appconfig.Pressure_target_pos,
                                                                       600, 300, 300)
                     status = self._on_messag_box_open(u'询问', u'下压电机运动是否到位?')
@@ -328,7 +328,7 @@ class KML_garment_Produce(IProduce):
 
                     # 下压电机运动复位
                     self._on_test_step_start(u'下压电机运动复位')
-                    status = self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Push_down_slave, 0, 600, 300, 300)
+                    status = self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Push_down_subordinate, 0, 600, 300, 300)
                     status = self._on_messag_box_open(u'询问', u'下压电机运动复位是否到位?')
                     # rst = QtGui.QMessageBox.question(None, u'询问', u'是否到位?',
                     #                                  QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)

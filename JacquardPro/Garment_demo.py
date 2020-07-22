@@ -83,8 +83,8 @@ class Garment_MainWindow(Ui_MainWindow):
         self.__appText(u'复位完成'if status else u'复位失败')
         # if status and self.jacquard_tester.moon_motor:
         #     self.__appText(u'正在进行电机home校准...')
-        #     self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Push_down_slave)
-        #     self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Roll_slave)
+        #     self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Push_down_subordinate)
+        #     self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Roll_subordinate)
         #     self.__appText(u'电机home校准完成')
 
     # 端口初始化完成信号处理
@@ -262,8 +262,8 @@ class Garment_MainWindow(Ui_MainWindow):
     # 初始化UI控件数据
     def _init_ui_data(self):
         self.lineEdit.setText(str(self.appconfig.Roll_start_pos))                    # 滚动测试起始位置
-        self.lineEdit_9.setText(str(self.appconfig.Push_down_slave))                 # 下压电机地址
-        self.lineEdit_10.setText(str(self.appconfig.Roll_slave))                     # 滚压电机地址
+        self.lineEdit_9.setText(str(self.appconfig.Push_down_subordinate))                 # 下压电机地址
+        self.lineEdit_10.setText(str(self.appconfig.Roll_subordinate))                     # 滚压电机地址
         self.lineEdit_5.setText(str(self.appconfig.Roll_pressure_pos))               # 滚动下压距离
         self.lineEdit_7.setText(str(self.appconfig.Roll_pos))                        # 滚动距离
         self.lineEdit_6.setText(str(self.appconfig.Vibrator_pos))                    # 振动器位置
@@ -413,7 +413,7 @@ class Garment_MainWindow(Ui_MainWindow):
                 pos = int(pos)
                 self.__appText('down pos = {0} start'.format(pos))
                 try:
-                    self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Push_down_slave, pos,
+                    self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Push_down_subordinate, pos,
                                                              KML_tester_base.ACCELEROMETER,
                                                              KML_tester_base.DECELERATION, KML_tester_base.RATIO, True)
                     self.__appText('down pos = {0} end '.format(pos))
@@ -431,7 +431,7 @@ class Garment_MainWindow(Ui_MainWindow):
         if self.jacquard_tester is not None:
             self.__appText('down reset start')
             try:
-                self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Push_down_slave, 0,
+                self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Push_down_subordinate, 0,
                                                          KML_tester_base.ACCELEROMETER,
                                                          KML_tester_base.DECELERATION, KML_tester_base.RATIO, True)
                 self.__appText('down reset ebd')
@@ -446,7 +446,7 @@ class Garment_MainWindow(Ui_MainWindow):
         if self.jacquard_tester is not None:
             self.__appText('press moon homeback start')
             try:
-                self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Push_down_slave)
+                self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Push_down_subordinate)
                 self.__appText('press moon homeback ebd')
                 QMessageBox.information(self, 'info', 'press moon homeback finished')
             except Exception, ex:
@@ -459,7 +459,7 @@ class Garment_MainWindow(Ui_MainWindow):
         if self.jacquard_tester is not None:
             self.__appText('roll moon homeback start')
             try:
-                self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Roll_slave)
+                self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Roll_subordinate)
                 self.__appText('roll moon homeback ebd')
                 QMessageBox.information(self, 'info', 'roll moon homeback finished')
             except Exception, ex:
@@ -475,7 +475,7 @@ class Garment_MainWindow(Ui_MainWindow):
                 pos = int(pos)
                 self.__appText('up pos = {0} start'.format(pos))
                 try:
-                    self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_slave, pos,
+                    self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_subordinate, pos,
                                                              KML_tester_base.ACCELEROMETER,
                                                              KML_tester_base.DECELERATION, KML_tester_base.RATIO, True)
                     self.__appText('move pos = {0} end '.format(pos))
@@ -493,7 +493,7 @@ class Garment_MainWindow(Ui_MainWindow):
         if self.jacquard_tester is not None:
             self.__appText('up reset start')
             try:
-                self.jacquard_tester.moon_motor.MoveLine(self.appconfig.roll_slave, 0, KML_tester_base.ACCELEROMETER,
+                self.jacquard_tester.moon_motor.MoveLine(self.appconfig.roll_subordinate, 0, KML_tester_base.ACCELEROMETER,
                                                          KML_tester_base.DECELERATION, KML_tester_base.RATIO, True)
                 self.__appText('up reset ebd')
                 QMessageBox.information(self, 'info', 'reset finished')
@@ -510,7 +510,7 @@ class Garment_MainWindow(Ui_MainWindow):
                 pos = int(pos)
                 self.__appText('roll test tart pos = {0} start'.format(pos))
                 try:
-                    self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_slave, pos,
+                    self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_subordinate, pos,
                                                              KML_tester_base.ACCELEROMETER,
                                                              KML_tester_base.DECELERATION, KML_tester_base.RATIO, True)
                     self.__appText('roll run pos = {0} end '.format(pos))
@@ -531,7 +531,7 @@ class Garment_MainWindow(Ui_MainWindow):
                 pos = int(pos)
                 self.__appText('roll run pos = {0} start'.format(pos))
                 try:
-                    self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_slave, pos,
+                    self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_subordinate, pos,
                                                              KML_tester_base.ACCELEROMETER,
                                                              KML_tester_base.DECELERATION, KML_tester_base.RATIO, True)
                     self.__appText('roll run pos = {0} end '.format(pos))
@@ -549,7 +549,7 @@ class Garment_MainWindow(Ui_MainWindow):
         if self.jacquard_tester is not None:
             self.__appText('up reset start')
             try:
-                self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_slave, 0, KML_tester_base.ACCELEROMETER,
+                self.jacquard_tester.moon_motor.MoveLine(self.appconfig.Roll_subordinate, 0, KML_tester_base.ACCELEROMETER,
                                                          KML_tester_base.DECELERATION, KML_tester_base.RATIO, True)
                 self.__appText('up reset ebd')
                 QMessageBox.information(self, 'info', 'reset finished')

@@ -485,7 +485,7 @@ class IQC_tester(IJacquardTest):
             self.current_item = 'check_difference_step'
             # self._on_item_start(self.current_item)
             test_status = True
-            slave = self.config_obj.Roll_slave
+            subordinate = self.config_obj.Roll_subordinate
             pos = self.config_obj.Roll_pos
             # 开始采集dut difference数据
             self.mcu.mcu_com.Start_T_Collect()
