@@ -19,7 +19,7 @@ class MCUComm(object):
         self.bytesize = bytesize
         self.parity = parity
         self.stopbits = stopbits
-        self.mcu_master = None   # Serial(port, baudrate, bytesize, parity, stopbits)
+        self.mcu_main = None   # Serial(port, baudrate, bytesize, parity, stopbits)
         self.timeout = 2
 
     # 自动查找端口
@@ -28,23 +28,23 @@ class MCUComm(object):
         if port_list is None or len(port_list) == 0:
             return False, 'do not ports'
         for port in port_list:
-            if self.mcu_master is not None:
-                self.mcu_master.close()
+            if self.mcu_main is not None:
+                self.mcu_main.close()
             try:
-                self.mcu_master = Serial(port, self.baudrate, self.bytesize, self.parity, self.stopbits, self.timeout)
+                self.mcu_main = Serial(port, self.baudrate, self.bytesize, self.parity, self.stopbits, self.timeout)
 
                 if self.checkConnect():
                     self.port = port
                     return True, port
                 else:
-                    self.mcu_master.close()
-                    self.mcu_master = None
+                    self.mcu_main.close()
+                    self.mcu_main = None
             except Exception, ex:
-                if self.mcu_master is not None:
-                    self.mcu_master.close()
+                if self.mcu_main is not None:
+                    self.mcu_main.close()
             finally:
-                if self.mcu_master is not None:
-                    self.mcu_master.close()
+                if self.mcu_main is not None:
+                    self.mcu_main.close()
 
         return False, 'io port connect fail'
 
@@ -52,11 +52,11 @@ class MCUComm(object):
     def checkConnect(self):
         try:
             if self.OpenPort():
-                self.mcu_master.write('\r')
+                self.mcu_main.write('\r')
                 time.sleep(0.01)
-                self.mcu_master.write("F")
+                self.mcu_main.write("F")
                 time.sleep(0.01)
-                data = self.mcu_master.read_all()
+                data = self.mcu_main.read_all()
                 if len(data) > 0 and data.lower().find("this is mcu port") >= 0:
                     return True
                 else:
@@ -69,23 +69,23 @@ class MCUComm(object):
     def OpenPort(self):
         try:
             self.message = ''
-            if self.mcu_master is None:
-                self.mcu_master = Serial(self.port, self.baudrate, self.bytesize, self.parity, self.stopbits)
-            if self.mcu_master.is_open is False:
-                self.mcu_master.open()
-            return self.mcu_master.is_open
+            if self.mcu_main is None:
+                self.mcu_main = Serial(self.port, self.baudrate, self.bytesize, self.parity, self.stopbits)
+            if self.mcu_main.is_open is False:
+                self.mcu_main.open()
+            return self.mcu_main.is_open
         except Exception, ex:
-            self.mcu_master = None
+            self.mcu_main = None
             self.message = 'port open fail: {0}'.format(ex.message)
             return False
 
     # 端口关闭
     def ClosePort(self):
         self.message = 'close port'
-        if self.mcu_master is not None and self.mcu_master.is_open:
-            self.mcu_master.read_all()     # 清除缓存数据
-            self.message = '{0} port close'.format(self.mcu_master.port)
-            self.mcu_master.close()
+        if self.mcu_main is not None and self.mcu_main.is_open:
+            self.mcu_main.read_all()     # 清除缓存数据
+            self.message = '{0} port close'.format(self.mcu_main.port)
+            self.mcu_main.close()
 
     # 直接跟dut连接时，需调用该函数更改模式
     # 延时是客户要求
@@ -93,13 +93,13 @@ class MCUComm(object):
         try:
             if self.OpenPort():
                 # 模式设置
-                self.mcu_master.write([0x03])
+                self.mcu_main.write([0x03])
                 time.sleep(0.1)
                 # start
-                self.mcu_master.write([0x20, 0x08, 0x04])
+                self.mcu_main.write([0x20, 0x08, 0x04])
                 time.sleep(0.1)
                 # uart mode
-                self.mcu_master.write([0x02])
+                self.mcu_main.write([0x02])
                 time.sleep(0.1)
                 return True
             else:
@@ -112,9 +112,9 @@ class MCUComm(object):
     def mcu_start(self):
         try:
             if self.OpenPort():
-                self.mcu_master.write("\r")
+                self.mcu_main.write("\r")
                 time.sleep(0.01)
-                # self.mcu_master.write("K")
+                # self.mcu_main.write("K")
                 # time.sleep(0.5)
                 return True
         except Exception, ex:
@@ -125,15 +125,15 @@ class MCUComm(object):
     def Read_I(self):
         try:
             if self.OpenPort():
-                self.mcu_master.write("i")
-                data = self.mcu_master.read_all()
+                self.mcu_main.write("i")
+                data = self.mcu_main.read_all()
                 starttime = time.time()
                 while time.time()-starttime <= self.timeout:
-                    data = data + self.mcu_master.read_all()
+                    data = data + self.mcu_main.read_all()
                     if len(data.split('\r\n')) >= 23:   # 返回数据应该在22行+ 1个空行
                         break
                 # 检测退出后在执行一次采集,避免数据未接收完
-                data = data + self.mcu_master.read_all()
+                data = data + self.mcu_main.read_all()
 
                 if len(data) == 0:
                     self.message = 'i command not response'
@@ -149,7 +149,7 @@ class MCUComm(object):
     def Send_R(self):
         try:
             if self.OpenPort():
-                self.mcu_master.write("r")
+                self.mcu_main.write("r")
                 return True
         except Exception, ex:
             self.message = 'send i command exception :' + ex.message
@@ -163,22 +163,22 @@ class MCUComm(object):
                 timeout = 10
 
             if self.OpenPort():
-                self.mcu_master.write('*')  # 发送任意数据，停止dut数据上传
+                self.mcu_main.write('*')  # 发送任意数据，停止dut数据上传
                 self.ClosePort()
                 time.sleep(0.02)
 
             if self.OpenPort():
-                self.mcu_master.read_all()
-                self.mcu_master.write("t")
+                self.mcu_main.read_all()
+                self.mcu_main.write("t")
                 st = time.time()
                 data = ''
                 msg = 'start t fail'
                 status = False
                 while time.time() - st <= timeout:
-                    data += self.mcu_master.read_all()
+                    data += self.mcu_main.read_all()
                     if len(data.split('\r\n')) >= 15:              # 发送t命令返回14行数据
                         time.sleep(0.01)
-                        data += self.mcu_master.read_all()
+                        data += self.mcu_main.read_all()
                         status = True
                         msg = 'ok'
                         break
@@ -196,7 +196,7 @@ class MCUComm(object):
         try:
             if self.OpenPort():
                 # 发送任意数据，开始采集数据
-                self.mcu_master.write("1")
+                self.mcu_main.write("1")
                 return True, 'ok'
         except Exception, ex:
             self.message = 'send i command exception :' + ex.message
@@ -207,7 +207,7 @@ class MCUComm(object):
         try:
             if self.OpenPort():
                 # 发送<Enter>键结束
-                self.mcu_master.write([0x0D])
+                self.mcu_main.write([0x0D])
                 time.sleep(0.5)
                 return True
         except Exception, ex:
@@ -220,7 +220,7 @@ class MCUComm(object):
     def Read_Buff(self):
         try:
             if self.OpenPort():
-                return self.mcu_master.read_all()
+                return self.mcu_main.read_all()
             else:
                 return ""
         except Exception, ex:
@@ -231,9 +231,9 @@ class MCUComm(object):
     def Enable_Haptics(self):
         try:
             if self.OpenPort():
-                self.mcu_master.write('*')
+                self.mcu_main.write('*')
                 time.sleep(0.01)
-                self.mcu_master.write('V')
+                self.mcu_main.write('V')
                 time.sleep(0.05)
                 # 有响应数据吗？
                 return True
@@ -244,7 +244,7 @@ class MCUComm(object):
     def Disable_Haptics(self):
         try:
             if self.OpenPort():
-                self.mcu_master.write('v')
+                self.mcu_main.write('v')
                 # 有响应数据吗？是 'Haptics disabled'吗？
                 return True
         except Exception, ex:
@@ -258,9 +258,9 @@ class MCUComm(object):
     def led_control(self, r="FF", g="FF", b="FF"):
         try:
             if self.OpenPort():
-                self.mcu_master.write('l')
+                self.mcu_main.write('l')
                 time.sleep(0.05)
-                self.mcu_master.write("{0}{1}{2}".format(r, g, b))
+                self.mcu_main.write("{0}{1}{2}".format(r, g, b))
                 time.sleep(0.05)
                 # 有响应数据吗?
                 return True
@@ -274,8 +274,8 @@ class MCUComm(object):
     def close_up(self):
         try:
             if self.OpenPort():
-                self.mcu_master.write('\r')
-                self.mcu_master.read_all()
+                self.mcu_main.write('\r')
+                self.mcu_main.read_all()
                 return True
         except Exception, ex:
             self.message = 'send close_up command exception :' + ex.message

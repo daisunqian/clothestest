@@ -15,11 +15,11 @@ class KML_garment_tester(KML_tester_base):
         status, msg = self._test_finished_step1()
         # 下压home
         if status:
-            status = self.moon_motor.SetMoonsHome(self.config_obj.Push_down_slave)
+            status = self.moon_motor.SetMoonsHome(self.config_obj.Push_down_subordinate)
         # roll home
         if status:
-            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_slave):
-                self.moon_motor.SetMoonsHome(self.config_obj.Roll_slave)
+            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_subordinate):
+                self.moon_motor.SetMoonsHome(self.config_obj.Roll_subordinate)
 
         # 张紧气缸复位
         if status:
@@ -30,7 +30,7 @@ class KML_garment_tester(KML_tester_base):
             status, msg = self.__test_finished_step4()
 
         # 等待结束在继续
-        self._wait_moo_stop([self.config_obj.Push_down_slave, self.config_obj.Roll_slave])
+        self._wait_moo_stop([self.config_obj.Push_down_subordinate, self.config_obj.Roll_subordinate])
         try:
             # 信号等复位
             if status:
@@ -55,13 +55,13 @@ class KML_garment_tester(KML_tester_base):
 
         # 下压电机复位
         if status:
-            status = self._Moveline(self.config_obj.Push_down_slave, 0, SPEED, False)
+            status = self._Moveline(self.config_obj.Push_down_subordinate, 0, SPEED, False)
             self._on_display_msg('reset', 'down press motor reset {0}'.format('OK' if status else 'fail'), status)
 
         # 滚动电机复位
         if status:
-            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_slave):
-                status = self._Moveline(self.config_obj.Roll_slave, 0, SPEED, False)
+            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_subordinate):
+                status = self._Moveline(self.config_obj.Roll_subordinate, 0, SPEED, False)
                 self._on_display_msg('reset', 'roll motor reset {0}'.format('OK' if status else 'fail'), status)
             else:
                 status = False
@@ -75,7 +75,7 @@ class KML_garment_tester(KML_tester_base):
             status, msg = self.__test_finished_step4()
 
         # 等待结束在继续
-        self._wait_moo_stop([self.config_obj.Push_down_slave, self.config_obj.Roll_slave])
+        self._wait_moo_stop([self.config_obj.Push_down_subordinate, self.config_obj.Roll_subordinate])
         try:
             # 信号等复位
             if status:
@@ -131,9 +131,9 @@ class KML_garment_tester(KML_tester_base):
             test_status = self.__roll_test_step2()
 
         if dut is False:
-            slave = self.config_obj.Roll_slave
+            subordinate = self.config_obj.Roll_subordinate
             pos = self.config_obj.Roll_pos
-            test_status = self._Moveline(slave, pos, ROLL_SPEED)
+            test_status = self._Moveline(subordinate, pos, ROLL_SPEED)
             return test_status
 
         # # 3开启t命令
@@ -156,10 +156,10 @@ class KML_garment_tester(KML_tester_base):
             self.current_item = 'roll_move_test_position'
             self._on_item_start(self.current_item)
             msg = '__roll_test_step1 ok'
-            slave = self.config_obj.Roll_slave
+            subordinate = self.config_obj.Roll_subordinate
             pos = self.config_obj.Roll_start_pos
             # 开始运动到指定位置
-            test_status = self._Moveline(slave, pos, SPEED)
+            test_status = self._Moveline(subordinate, pos, SPEED)
             if test_status is False:
                 msg = 'move roll test pos fail'
 
@@ -178,14 +178,14 @@ class KML_garment_tester(KML_tester_base):
             self.current_item = 'press_touch_product'
             self._on_item_start(self.current_item)
             msg = '__roll_test_step2 ok'
-            slave = self.config_obj.Push_down_slave
+            subordinate = self.config_obj.Push_down_subordinate
             pos1 = self.config_obj.Pressure_target_pos
             pos = self.config_obj.Roll_pressure_pos
             maxN = self.config_obj.MaxN
             # 检测之前清除loadcell压力表数据
             self._clear_loadcell()
             # 运动到目标1pos
-            test_status = self._press_to_pos(self.loadcell, slave, pos1, SPEED)
+            test_status = self._press_to_pos(self.loadcell, subordinate, pos1, SPEED)
             if test_status is False:
                 msg = 'roll_test_step2 run target pos1 fail'
 
@@ -193,7 +193,7 @@ class KML_garment_tester(KML_tester_base):
             if test_status:
                 # 检测之前清除loadcell压力表数据
                 # self._clear_loadcell()
-                test_status = self._run_to_InitN(self.loadcell, slave, pos, 50, maxN)
+                test_status = self._run_to_InitN(self.loadcell, subordinate, pos, 50, maxN)
                 time.sleep(1)      # 等待压力表稳定
                 if test_status is False:
                     msg = 'roll_test_step2 touch fail'
@@ -214,10 +214,10 @@ class KML_garment_tester(KML_tester_base):
             self._on_item_start(self.current_item)
             msg = '__roll_test_step3 fail'
             # 滚动电机运动
-            slave = self.config_obj.Roll_slave
+            subordinate = self.config_obj.Roll_subordinate
             pos = self.config_obj.Roll_pos
-            # 可以测试产品时，必须使用 test_status = self._Moveline(slave, pos, ROLL_SPEED, False)
-            test_status = self._Moveline(slave, pos, ROLL_SPEED, False)
+            # 可以测试产品时，必须使用 test_status = self._Moveline(subordinate, pos, ROLL_SPEED, False)
+            test_status = self._Moveline(subordinate, pos, ROLL_SPEED, False)
             if test_status:
                 msg = 'roll motor move ok '
             else:
@@ -239,8 +239,8 @@ class KML_garment_tester(KML_tester_base):
             self._on_item_start(self.current_item)
             msg = '__roll_test_step4 fail'
             # 下压电机复位
-            test_status = self._Moveline(self.config_obj.Push_down_slave, 0, SPEED)
-            msg = 'press moon slave={0} reset {1}'.format(self.config_obj.Push_down_slave,
+            test_status = self._Moveline(self.config_obj.Push_down_subordinate, 0, SPEED)
+            msg = 'press moon subordinate={0} reset {1}'.format(self.config_obj.Push_down_subordinate,
                                                           'ok' if test_status else 'fail')
 
             return test_status
@@ -275,12 +275,12 @@ class KML_garment_tester(KML_tester_base):
             msg = '__vibration_move_step1 fail'
 
             # 下压电机复位
-            p_slav = self.config_obj.Push_down_slave
+            p_slav = self.config_obj.Push_down_subordinate
             test_status = self._Moveline(p_slav, 0, SPEED, False)
             # 移动电机移动到振动器位置
-            r_slave = self.config_obj.Roll_slave
-            test_status = self._Moveline(r_slave, self.config_obj.Vibrator_pos, SPEED, False)
-            all_stop, run_list = self._wait_moo_stop(slave_list=[p_slav, r_slave])
+            r_subordinate = self.config_obj.Roll_subordinate
+            test_status = self._Moveline(r_subordinate, self.config_obj.Vibrator_pos, SPEED, False)
+            all_stop, run_list = self._wait_moo_stop(subordinate_list=[p_slav, r_subordinate])
             value_str = ''
             if all_stop:
                 test_status = True
@@ -290,9 +290,9 @@ class KML_garment_tester(KML_tester_base):
                 test_status = False
                 msg = ''
                 if [].index(p_slav) >= 0:
-                    msg = "press motor not in position, slave={0}".format(p_slav)
-                if [].index(r_slave) >= 0:
-                    msg += "roll motor not in position, slave={0}".format(r_slave)
+                    msg = "press motor not in position, subordinate={0}".format(p_slav)
+                if [].index(r_subordinate) >= 0:
+                    msg += "roll motor not in position, subordinate={0}".format(r_subordinate)
 
                 value_str = str(test_status)
             return test_status
@@ -339,7 +339,7 @@ class KML_garment_tester(KML_tester_base):
         test_status, msg = self._accelerated_up()
         # 滚动电机复位
         if test_status:
-            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_slave):
+            if self.moon_motor.CheckHomeStatus(self.config_obj.Push_down_subordinate):
                 test_status, msg = self.__test_finished_step2()
             else:
                 test_status = False
@@ -373,8 +373,8 @@ class KML_garment_tester(KML_tester_base):
     def __test_finished_step2(self):
         try:
             msg = '__test_finished_step2 ok'
-            test_status = self._Moveline(self.config_obj.Roll_slave, 0, SPEED)
-            msg = 'roll moon reset,slave={0} {1}'.format(self.config_obj.Roll_slave, 'ok' if test_status else 'fail')
+            test_status = self._Moveline(self.config_obj.Roll_subordinate, 0, SPEED)
+            msg = 'roll moon reset,subordinate={0} {1}'.format(self.config_obj.Roll_subordinate, 'ok' if test_status else 'fail')
             return test_status, msg
         except Exception, ex:
             test_status = False

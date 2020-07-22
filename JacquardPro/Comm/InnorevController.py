@@ -33,7 +33,7 @@ class InnorevController(object):
         self.stopbits = serial.STOPBITS_ONE
         self.bytesize = serial.EIGHTBITS
         self.timeout = 0.1
-        self.master = None      # serial.Serial(port, baudrate, bytesize,  parity, stopbits, timeout)
+        self.main = None      # serial.Serial(port, baudrate, bytesize,  parity, stopbits, timeout)
         self.lock = threading.Lock()
         self.message = ''
 
@@ -43,47 +43,47 @@ class InnorevController(object):
         if port_list is None or len(port_list) == 0:
             return False, 'do not ports'
         for port in port_list:
-            if self.master is not None:
-                self.master.close()
+            if self.main is not None:
+                self.main.close()
             try:
-                self.master = serial.Serial(port, self.baudrate, self.bytesize, self.parity, self.stopbits, self.timeout)
+                self.main = serial.Serial(port, self.baudrate, self.bytesize, self.parity, self.stopbits, self.timeout)
                 if self.checkConnect():
                     self.port = port
                     return True, port
                 else:
-                    self.master.close()
-                    self.master = None
+                    self.main.close()
+                    self.main = None
             except Exception, ex:
-                if self.master is not None:
-                    self.master.close()
+                if self.main is not None:
+                    self.main.close()
             finally:
-                if self.master is not None:
-                    self.master.close()
+                if self.main is not None:
+                    self.main.close()
 
         return False, 'io port connect fail'
 
     def close(self):
-        self.master.close()
+        self.main.close()
         self.message = 'port close'
 
     def __open(self):
         try:
             self.message = ''
-            if self.master is not None and self.master.isOpen() is False:
-                self.master.open()
+            if self.main is not None and self.main.isOpen() is False:
+                self.main.open()
         except Exception, ex:
-            self.message = 'open {0} fail, {1}'.format(self.master.port, ex.message)
+            self.message = 'open {0} fail, {1}'.format(self.main.port, ex.message)
 
 
     """
        check the serial port is or not innorev board serial port
-        @param slave: default,not used.just adapt style
+        @param subordinate: default,not used.just adapt style
         @return: bool:success True,failed False
     """
-    def checkConnect(self,slave=0):
+    def checkConnect(self,subordinate=0):
         try:
-            if self.master is None:
-                self.master = serial.Serial(self.port, self.baudrate, self.bytesize, self.parity, self.stopbits,
+            if self.main is None:
+                self.main = serial.Serial(self.port, self.baudrate, self.bytesize, self.parity, self.stopbits,
                                             self.timeout)
             ok,data = self.readDI()
             if ok:
@@ -106,19 +106,19 @@ class InnorevController(object):
         try:
             self.lock.acquire()
             self.message = ''
-            if self.master.isOpen():
-                self.master.flushInput()
+            if self.main.isOpen():
+                self.main.flushInput()
                 command = "WriteEEPROM 0x0090 %#.2x\r"%(value)
-                n=self.master.write(command)
-                data = self.master.read(1000)
+                n=self.main.write(command)
+                data = self.main.read(1000)
                 starttime = time.time()
                 while True:
-                    n=self.master.inWaiting()
+                    n=self.main.inWaiting()
                     if(n==0):
                         break
                     if time.time()-starttime>timeout:
                         break
-                    data=data+self.master.read(n)
+                    data=data+self.main.read(n)
                 lst = data.split("\r\n")
                 if lst[2]=="OK":
                     return True,data
@@ -135,19 +135,19 @@ class InnorevController(object):
         try:
             self.lock.acquire()
             self.message = ''
-            if self.master.isOpen():
-                self.master.flushInput()
+            if self.main.isOpen():
+                self.main.flushInput()
                 command = "WriteSN %.4d\r"%(value)
-                n=self.master.write(command)
-                data = self.master.read(1000)
+                n=self.main.write(command)
+                data = self.main.read(1000)
                 starttime = time.time()
                 while True:
-                    n=self.master.inWaiting()
+                    n=self.main.inWaiting()
                     if(n==0):
                         break
                     if time.time()-starttime>timeout:
                         break
-                    data=data+self.master.read(n)
+                    data=data+self.main.read(n)
                 lst = data.split("\r\n")
                 if lst[2]=="OK":
                     return True,data
@@ -205,25 +205,25 @@ class InnorevController(object):
         try:
             self.lock.acquire()
             self.message = ''
-            if self.master.isOpen() is False:
+            if self.main.isOpen() is False:
                 self.__open()
 
-            if self.master.isOpen():
-                self.master.flushInput()
+            if self.main.isOpen():
+                self.main.flushInput()
                 command = "readEEprom 0x0090\r".encode("utf-8")
                 #pdb.set_trace()
-                self.master.flushOutput()
-                n=self.master.write(command)
-                data = self.master.read(1000)
+                self.main.flushOutput()
+                n=self.main.write(command)
+                data = self.main.read(1000)
                 starttime = time.time()
                 while True:
                     time.sleep(0.01)
-                    n=self.master.inWaiting()
+                    n=self.main.inWaiting()
                     if(n==0):
                         break
                     if time.time()-starttime>timeout:
                         break
-                    data += self.master.read(n)
+                    data += self.main.read(n)
                     
                 lst = data.split("\r\n")
                 if len(lst)==5 and lst[3]=="OK":
@@ -242,26 +242,26 @@ class InnorevController(object):
         try:
             self.lock.acquire()
             self.message = ''
-            if self.master.isOpen() is False:
+            if self.main.isOpen() is False:
                 self.__open()
 
-            if self.master.isOpen() :
-                self.master.flushInput()
+            if self.main.isOpen() :
+                self.main.flushInput()
                 command = "readsn\r".encode("utf-8")
                 #pdb.set_trace()
-                self.master.flushOutput()
-                n=self.master.write(command)
-                data = self.master.read(1000)
+                self.main.flushOutput()
+                n=self.main.write(command)
+                data = self.main.read(1000)
                 starttime = time.time()
                 while True:
                     time.sleep(0.01)
-                    n=self.master.inWaiting()
+                    n=self.main.inWaiting()
                     sys.stdout.flush()
                     if(n==0):
                         break
                     if time.time()-starttime>timeout:
                         break
-                    data += self.master.read(n)
+                    data += self.main.read(n)
                     
                 lst = data.split("\r\n")
                 if (len(lst)==4 and lst[2]=="OK") or (len(lst)==5 and lst[3]=="OK") :
@@ -287,22 +287,22 @@ class InnorevController(object):
         try:
             self.lock.acquire()
             self.message = ''
-            if self.master.isOpen() is False:
+            if self.main.isOpen() is False:
                 self.__open()
 
-            if self.master.isOpen():
-                self.master.flushInput()
+            if self.main.isOpen():
+                self.main.flushInput()
                 command = "ReadDI\r"
-                n = self.master.write(command)
-                self.master.flushOutput()
-                data = self.master.read(1)
+                n = self.main.write(command)
+                self.main.flushOutput()
+                data = self.main.read(1)
                 starttime = time.time()
                 while True:
                     time.sleep(0.01)
-                    n = self.master.inWaiting()
+                    n = self.main.inWaiting()
                     if(n == 0):
                         break
-                    data = data+self.master.read(n)
+                    data = data+self.main.read(n)
                     if time.time()-starttime > timeout:
                         break
 
@@ -331,24 +331,24 @@ class InnorevController(object):
         try:
             self.lock.acquire()
             self.message = ''
-            if self.master.isOpen() is False:
+            if self.main.isOpen() is False:
                 self.__open()
 
-            if self.master.isOpen() :
-                self.master.flushInput()
+            if self.main.isOpen() :
+                self.main.flushInput()
                 command="ReadDO\r"
-                n=self.master.write(command)
-                self.master.flushOutput()
-                data = self.master.read(1)
+                n=self.main.write(command)
+                self.main.flushOutput()
+                data = self.main.read(1)
                 starttime = time.time()
                 while True:
                     time.sleep(0.01)
-                    n=self.master.inWaiting()
+                    n=self.main.inWaiting()
                     if(n==0):
                         break
                     if time.time()-starttime>timeout:
                         break
-                    data=data+self.master.read(n)
+                    data=data+self.main.read(n)
                 # print data
                 lst = data.split("\r\n")
                 if((len(lst)==5 or len(lst)==4) and (lst[3]=="OK" or lst[2]=="OK")):
@@ -374,22 +374,22 @@ class InnorevController(object):
         try:
             self.lock.acquire()
             self.message = ''
-            if self.master.isOpen() is False:
+            if self.main.isOpen() is False:
                 self.__open()
 
-            if self.master.isOpen():
-                self.master.flushInput()
+            if self.main.isOpen():
+                self.main.flushInput()
                 command = "WriteDO %#.2x %#.2x\r"%(index,status)
-                self.master.write(command)
-                data = self.master.read(1000)
+                self.main.write(command)
+                data = self.main.read(1000)
                 starttime = time.time()
                 while True:
-                    n=self.master.inWaiting()
+                    n=self.main.inWaiting()
                     if(n==0):
                         break 
                     if time.time()-starttime>timeout:
                         break
-                    data=data+self.master.read(n)
+                    data=data+self.main.read(n)
                 # print data
                 lst = data.split("\r\n")
                 if lst[2]=="OK" or lst[1]=="OK":

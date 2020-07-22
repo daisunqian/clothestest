@@ -167,8 +167,8 @@ class JacquardMainWindow(Ui_MainWindow):
             self.__appText(u'复位完成' if status else u'复位失败')
             # if status and self.jacquard_tester.moon_motor:
             #     self.__appText(u'正在进行电机home校准...')
-            #     self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Push_down_slave)
-            #     self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Roll_slave)
+            #     self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Push_down_subordinate)
+            #     self.jacquard_tester.moon_motor.SetMoonsHome(self.appconfig.Roll_subordinate)
             #     self.__appText(u'电机home校准完成')
         except Exception, ex:
             self.__appText('_start_reset exception:'+ex.message)
